@@ -61,21 +61,32 @@ public:
     }
 };
 void testComplexity() {
-    cout << "BADANIE ZLOZONOSCI OBLICZENIOWEJ" << endl;
-    cout << "Rozmiar N\tSuma (ms)\tWstawianie (ns)" << endl;
-    vector<long int> sizes = {10000000, 50000000, 100000000}; 
-    for (long int N : sizes) {
+    cout << "\nTEST SetSimple (tablica)" << endl;
+    cout << "N\tInsert (ns)\tUnion (ms)" << endl;
+
+    vector<int> sizes = {1000, 5000, 10000, 20000};
+
+    for (int N : sizes) {
         SetSimple A(N), B(N);
+        for (int i = 0; i < N; i++) {
+            if (i % 2 == 0) A.insert(i);
+            if (i % 3 == 0) B.insert(i);
+        }
         auto start_insert = high_resolution_clock::now();
         A.insert(N - 1);
         auto stop_insert = high_resolution_clock::now();
-        auto duration_insert = duration_cast<nanoseconds>(stop_insert - start_insert);
+        auto insert_time = duration_cast<nanoseconds>(stop_insert - start_insert);
+        int rep = 10;
         auto start_union = high_resolution_clock::now();
-        SetSimple C = A.unionSet(B);
-        auto stop_union = high_resolution_clock::now();
-        auto duration_union = duration_cast<milliseconds>(stop_union - start_union);
 
-        cout << N << "\t\t" << duration_union.count() << "\t\t" << duration_insert.count() << " ns" << endl;
+        for (int i = 0; i < rep; i++) {
+            SetSimple C = A.unionSet(B);
+        }
+
+        auto stop_union = high_resolution_clock::now();
+        auto union_time = duration_cast<milliseconds>(stop_union - start_union);
+
+        cout << N << "\t" << insert_time.count()<< "\t\t" << union_time.count() << endl;
     }
 }
 int main() {

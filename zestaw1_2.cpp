@@ -1,5 +1,9 @@
 #include <iostream>
+#include <chrono>
+#include <vector>
+
 using namespace std;
+using namespace std::chrono;
 
 struct Node {
     int value;
@@ -10,20 +14,6 @@ struct Node {
 class SetLinked {
 private:
     Node* head;
-    Node* copyList(Node* otherHead) const {
-        if (!otherHead) return nullptr;
-
-        Node* newHead = new Node(otherHead->value);
-        Node* currNew = newHead;
-        Node* currOld = otherHead->next;
-
-        while (currOld) {
-            currNew->next = new Node(currOld->value);
-            currNew = currNew->next;
-            currOld = currOld->next;
-        }
-        return newHead;
-    }
 
 public:
     SetLinked() : head(nullptr) {}
@@ -139,7 +129,6 @@ public:
         SetLinked result;
         Node *a = head, *b = other.head;
         Node** tail = &result.head;
-
         while (a) {
             while (b && b->value < a->value) {
                 b = b->next;
@@ -173,7 +162,33 @@ public:
         cout << "}" << endl;
     }
 };
+void testComplexity() {
+    cout << "\nTEST SetLinked (lista)" << endl;
+    cout << "N\tInsert (ns)\tUnion (ms)" << endl;
 
+    vector<int> sizes = {1000, 5000, 10000, 20000};
+
+    for (int N : sizes) {
+        SetLinked A, B;
+        for (int i = 0; i < N; i++) {
+            if (i % 2 == 0) A.insert(i);
+            if (i % 3 == 0) B.insert(i);
+        }
+        auto start_insert = high_resolution_clock::now();
+        A.insert(N + 1);
+        auto stop_insert = high_resolution_clock::now();
+        auto insert_time = duration_cast<nanoseconds>(stop_insert - start_insert);
+        int rep = 10;
+        auto start_union = high_resolution_clock::now();
+        for (int i = 0; i < rep; i++) {
+            SetLinked C = A.unionSet(B);
+        }
+        auto stop_union = high_resolution_clock::now();
+        auto union_time = duration_cast<milliseconds>(stop_union - start_union);
+
+        cout << N << "\t" << insert_time.count() << "\t\t" << union_time.count() << endl;
+    }
+}
 int main() {
     SetLinked A, B;
 
@@ -187,18 +202,15 @@ int main() {
 
     cout << "A = "; A.print();
     cout << "B = "; B.print();
-
     cout << "A ∪ B = "; A.unionSet(B).print();
     cout << "A ∩ B = "; A.intersection(B).print();
     cout << "A - B = "; A.difference(B).print();
-
-    cout << "3 in A: " << A.contains(3) << endl;
-    cout << "2 in A: " << A.contains(2) << endl;
-
+    cout << "3 w A: " << A.contains(3) << endl;
+    cout << "2 w A: " << A.contains(2) << endl;
     A.remove(3);
-    cout << "A after removing 3: "; A.print();
-
+    cout << "A po usunieciu 3: "; A.print();
     cout << "A == B: " << A.equals(B) << endl;
+    testComplexity();
 
     return 0;
 }
